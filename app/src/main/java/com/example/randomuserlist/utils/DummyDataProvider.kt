@@ -1,13 +1,15 @@
 package com.example.randomuserlist.utils
 
-data class RandomUser(
-    val name : String = "개발하는 정대리 🙊",
-    val description: String = "오늘도 빡코딩 하고 계신가요?",
-    val profileImage: String = "https://randomuser.me/api/portraits/women/72.jpg"
-)
+import com.example.randomuserlist.model.RandomUser
+
+//data class RandomUser(
+//    val name : String = "개발하는 정대리 🙊",
+//    val description: String = "오늘도 빡코딩 하고 계신가요?",
+//    val profileImage: String = "https://randomuser.me/api/portraits/women/72.jpg"
+//)
 
 object DummyDataProvider {
 
-    val userList = List<RandomUser>(200){ RandomUser() }
+//    val userList = List<RandomUser>(200){ RandomUser() }
 
 }

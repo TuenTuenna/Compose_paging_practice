@@ -1,5 +1,6 @@
 package com.example.randomuserlist
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -15,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,20 +31,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.paging.PagingData
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.example.randomuserlist.model.RandomUser
 import com.example.randomuserlist.ui.theme.MyGreen
 import com.example.randomuserlist.ui.theme.RandomUserListTheme
 import com.example.randomuserlist.utils.DummyDataProvider
-import com.example.randomuserlist.utils.RandomUser
+import com.example.randomuserlist.viewmodels.MainViewModel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.toCollection
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity() {
+
+    private val mainViewModel: MainViewModel by viewModel()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             RandomUserListTheme {
-                ContentView()
+                ContentView(mainViewModel = mainViewModel)
             }
         }
     }
@@ -68,17 +80,31 @@ fun MyAppBar(){
 }
 
 @Composable
-fun ContentView(){
+fun ContentView(mainViewModel: MainViewModel){
     // A surface container using the 'background' color from the theme
     Surface(color = MaterialTheme.colors.background) {
         Scaffold(backgroundColor = Color.White,
             topBar = { MyAppBar() }
         ) {
-            RandomUserListView(randomUsers = DummyDataProvider.userList)
+            RandomUserList(randomUsers = mainViewModel.randomUsers)
+//            RandomUserListView(randomUsers = DummyDataProvider.userList)
         }
     }
 }
 
+@Composable
+fun RandomUserList(randomUsers: Flow<PagingData<RandomUser>>){
+
+    val lazyRandomUsers = randomUsers.collectAsLazyPagingItems()
+
+    LazyColumn{
+        items(lazyRandomUsers){ randomUser ->
+            if (randomUser != null) {
+                RandomUserView(randomUser = randomUser)
+            }
+        }
+    }
+}
 
 @Composable
 fun RandomUserListView(randomUsers: List<RandomUser>){
@@ -113,8 +139,8 @@ fun RandomUserView(randomUser: RandomUser){
 //            )
             ProfileImg(imgUrl = randomUser.profileImage)
             Column() {
-                Text(text = randomUser.name,
-                    style = typography.subtitle1)
+//                Text(text = randomUser.name,
+//                    style = typography.subtitle1)
                 Text(text = randomUser.description,
                     style = typography.body1)
             }
@@ -122,6 +148,7 @@ fun RandomUserView(randomUser: RandomUser){
     }
 }
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun ProfileImg(imgUrl: String, modifier: Modifier = Modifier){
     // 이미지 비트맵
@@ -163,10 +190,10 @@ fun ProfileImg(imgUrl: String, modifier: Modifier = Modifier){
 
 
 
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    RandomUserListTheme {
-        ContentView()
-    }
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun DefaultPreview() {
+//    RandomUserListTheme {
+//        ContentView()
+//    }
+//}
